@@ -8,6 +8,19 @@ import carte
 from joueur import Joueur
 from carte import Carte
 
+#Affiche un texte selon des paramètres
+def afficher_text(fenetre, texte: str, x: int, y: int, taille, font_choisi: str, couleur=(0, 0, 0), center=False):
+  fontt = pygame.font.SysFont(font_choisi, taille)
+  text_surface = fontt.render(texte, True, couleur)
+  if center:
+    text_x = (fenetre.get_width() - text_surface.get_width()) // 2
+    text_y = (fenetre.get_height() - text_surface.get_height()) // 2
+  else:
+    text_x = x
+    text_y = y
+
+  return text_surface, (text_x, text_y)
+
 
 def update_elixir(joueur, last_time, elixir_cooldown):
     current_time = time.time()
@@ -23,7 +36,7 @@ class Combat:
         self.arriere_plan = pygame.image.load("images/arenes/" + arriere_plan + ".png")
         self.joueur1: Joueur = joueur1
         self.joueur2: Joueur = joueur2
-        self.elixir_cooldown = 1.4
+        self.elixir_cooldown = 0.9
         self.card_placement_bounds_bleu = [(0, 550), (400, 800)]
         self.card_placement_bounds_rouge = [(0, 550), (0, 400)]
         self.card_slots = []
@@ -33,9 +46,11 @@ class Combat:
         # Créer la fenêtre
         pygame.init()
 
+
         width, height = 550, 950
         fenetre = pygame.display.set_mode((width, height))
         pygame.display.set_caption("Python Royale")
+        clock = pygame.time.Clock()
 
         # place les tours de chaque joueur
         self.joueur1.tours.append(carte.Tour("bleu", 275, 700, "roi", 4824, 109, 100, 1, fenetre))
@@ -68,8 +83,8 @@ class Combat:
             c.initialize(fenetre)
 
 
-
-        while True:
+        combat_en_cours = True
+        while combat_en_cours:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -98,9 +113,6 @@ class Combat:
                         selected_card_slot.last_time_card_was_placed = time.time()
                         print("placed card")
 
-
-                    else:
-                        print(event.pos)
             # Clear the screen
             fenetre.blit(self.arriere_plan, (0, 0))
             elixir = pygame.image.load(f"images/elixir/elixirbar_{self.joueur1.elixir}.png").convert_alpha()
@@ -113,11 +125,6 @@ class Combat:
                     card_slot.carte = self.joueur1.deck[card_slot.numero]
                 card_slot.draw()
 
-            #dessine les tours
-            for tour in self.joueur1.tours:
-                tour.draw()
-            for tour in self.joueur2.tours:
-                tour.draw()
 
             #essaye de recharger l'elixir
             last_time_elixir_recharged_player1 = update_elixir(self.joueur1, last_time_elixir_recharged_player1, self.elixir_cooldown)
@@ -128,19 +135,53 @@ class Combat:
             if self.joueur2.elixir > 10:
                 self.joueur2.elixir = 10
 
+            # dessine les tours
+            for tour in self.joueur1.tours:
+                if tour.pv <=0:
+                    if tour.type_de_tour == "roi":
+                        print("roi mort")
+                        return
+                    self.joueur1.tours.remove(tour)
+                    continue
+                tour.draw()
+            for tour in self.joueur2.tours:
+                if tour.pv <=0:
+                    if tour.type_de_tour == "roi":
+                        print("roi mort")
+                        new_game_text = afficher_text(fenetre,
+                                                      f"Partie terminée!",
+                                                      fenetre.get_width(),
+                                                      fenetre.get_height(), 60, "Impact", center=True,
+                                                      couleur=(255, 255, 255))
+                        fenetre.blit(new_game_text[0], new_game_text[1])
+                        pygame.display.flip()
+                        pygame.time.delay(3000)
+                        combat_en_cours = False
+                        continue
+                    else:
+                        self.joueur2.tours.remove(tour)
+                        continue
+                tour.draw()
+
             # dessine les cartes sur le terrain
             for card in self.cards_on_the_field:
-                card.draw()
+                if card.couleur == "bleu":
+                    card.draw(tours=self.joueur2.tours)
+                else:
+                    card.draw(tours=self.joueur1.tours)
+
+
+
 
 
             # check if mouse is in card_placement_bounds_bleu
             if selected_card_slot and selected_card_slot.carte and self.is_mouse_in_bound():
                 selected_card_slot: EmplacementDeCarte
-                selected_card_slot.carte: Carte
                 selected_card_slot.carte.draw(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], True)
 
             # Update the display
             pygame.display.flip()
+            clock.tick(30)
 
     def is_mouse_in_bound(self):
         if self.card_placement_bounds_bleu[0][0] < pygame.mouse.get_pos()[0] < self.card_placement_bounds_bleu[0][1] and \
