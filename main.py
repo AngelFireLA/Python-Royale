@@ -1,6 +1,6 @@
 import pygame
 import carte
-from carte import Carte, Troupe
+from carte import Carte, Troupe, WinCondition
 import combat
 import joueur
 pygame.init()
@@ -11,17 +11,17 @@ while True:
     joueur_rouge = joueur.Joueur("rouge", "bot",[])
     #vraie attaque du golem = 312
     cartes_bleu = [
-        Troupe("golem", "bleu", 2, "troupe", 5120, 312, 8, 2.51, 1, "batiment"),
-        Troupe("golem", "bleu", 2, "troupe", 5120, 312, 8, 2.51, 1, "batiment"),
-        Troupe("golem", "bleu", 2, "troupe", 5120, 312, 8, 2.51, 1, "batiment"),
-        Troupe("golem", "bleu", 2, "troupe", 5120, 312, 8, 2.51, 1, "batiment"),
+        WinCondition("golem", "bleu", 2,  5120, 312, 8, 2.51, 4),
+        WinCondition("golem", "bleu", 2,  5120, 312, 8, 2.51, 4),
+        WinCondition("golem", "bleu", 2,  5120, 312, 8, 2.51, 4),
+        Troupe("chevalier", "bleu", 2,  5120, 1500, 50, 2.51, 4),
     ]
 
     cartes_rouge = [
-        Troupe("golem", "rouge", 2, "troupe", 5120, 312, 8, 2.51, 1, "batiment"),
-        Troupe("golem", "rouge", 2, "troupe", 5120, 312, 8, 2.51, 1, "batiment"),
-        Troupe("golem", "rouge", 2, "troupe", 5120, 312, 8, 2.51, 1, "batiment"),
-        Troupe("golem", "rouge", 2, "troupe", 5120, 312, 8, 2.51, 1, "batiment"),
+        WinCondition("golem", "rouge", 2,  5120, 312, 8, 2.51, 1),
+        WinCondition("golem", "rouge", 2,  5120, 312, 8, 2.51, 1),
+        WinCondition("golem", "rouge", 2,  5120, 312, 8, 2.51, 1),
+        WinCondition("golem", "rouge", 2,  5120, 312, 8, 2.51, 1),
     ]
 
     joueur_bleu.deck = cartes_bleu

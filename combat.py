@@ -36,7 +36,7 @@ class Combat:
         self.arriere_plan = pygame.image.load("images/arenes/" + arriere_plan + ".png")
         self.joueur1: Joueur = joueur1
         self.joueur2: Joueur = joueur2
-        self.elixir_cooldown = 2.8
+        self.elixir_cooldown = 0.9
         self.card_placement_bounds_bleu = [(0, 550), (400, 800)]
         self.card_placement_bounds_rouge = [(0, 550), (0, 400)]
         self.card_slots = []
@@ -89,7 +89,7 @@ class Combat:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                # print coordinates of left clicked
+
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     # check if mouse y is below 800 and before 910
                     if 800 < event.pos[1] < 910:
@@ -108,12 +108,22 @@ class Combat:
                     #vérifie si l'utilisateur place une carte dans de bonnes conditions
                     elif selected_card_slot and selected_card_slot.carte and self.is_mouse_in_bound() and self.joueur1.elixir >= selected_card_slot.carte.cout_elixir:
                         self.cards_on_the_field.append(selected_card_slot.carte.copy((pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])))
+
                         self.joueur1.elixir -= selected_card_slot.carte.cout_elixir
                         selected_card_slot.carte = None
                         selected_card_slot.last_time_card_was_placed = time.time()
                         print("placed card")
                         selected_card_slot.selected = False
                         selected_card_slot = None
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+
+                    #vérifie si l'utilisateur place une carte dans de bonnes conditions
+                    if pygame.mouse.get_pos()[1] < 400:
+                        new_enemy_card = carte.WinCondition("golem", "rouge", 2, 5120, 312, 8, 2.51, 1).copy((pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]))
+                        new_enemy_card.initialize(fenetre)
+                        self.cards_on_the_field.append(new_enemy_card)
+                        print("placed card")
+
 
             # Clear the screen
             fenetre.blit(self.arriere_plan, (0, 0))
@@ -167,10 +177,15 @@ class Combat:
 
             # dessine les cartes sur le terrain
             for card in self.cards_on_the_field:
+                if card.pv <= 0 :
+                    self.cards_on_the_field.remove(card)
+                    continue
                 if card.couleur == "bleu":
-                    card.draw(tours=self.joueur2.tours, cartes_en_jeux=self.cards_on_the_field)
+                    cartes_enemies = [card for card in self.cards_on_the_field if card.couleur == "rouge"]
+                    card.draw(tours=self.joueur2.tours, cartes_en_jeux=cartes_enemies)
                 else:
-                    card.draw(tours=self.joueur1.tours, cartes_en_jeux=self.cards_on_the_field)
+                    cartes_enemies = [card for card in self.cards_on_the_field if card.couleur == "bleu"]
+                    card.draw(tours=self.joueur1.tours, cartes_en_jeux=cartes_enemies)
 
 
 
