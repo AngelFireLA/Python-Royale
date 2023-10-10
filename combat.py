@@ -36,7 +36,7 @@ class Combat:
         self.arriere_plan = pygame.image.load("images/arenes/" + arriere_plan + ".png")
         self.joueur1: Joueur = joueur1
         self.joueur2: Joueur = joueur2
-        self.elixir_cooldown = 0.9
+        self.elixir_cooldown = 2.8
         self.card_placement_bounds_bleu = [(0, 550), (400, 800)]
         self.card_placement_bounds_rouge = [(0, 550), (0, 400)]
         self.card_slots = []
@@ -112,6 +112,8 @@ class Combat:
                         selected_card_slot.carte = None
                         selected_card_slot.last_time_card_was_placed = time.time()
                         print("placed card")
+                        selected_card_slot.selected = False
+                        selected_card_slot = None
 
             # Clear the screen
             fenetre.blit(self.arriere_plan, (0, 0))
@@ -166,9 +168,9 @@ class Combat:
             # dessine les cartes sur le terrain
             for card in self.cards_on_the_field:
                 if card.couleur == "bleu":
-                    card.draw(tours=self.joueur2.tours)
+                    card.draw(tours=self.joueur2.tours, cartes_en_jeux=self.cards_on_the_field)
                 else:
-                    card.draw(tours=self.joueur1.tours)
+                    card.draw(tours=self.joueur1.tours, cartes_en_jeux=self.cards_on_the_field)
 
 
 

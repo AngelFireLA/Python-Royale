@@ -3,7 +3,7 @@ import time
 
 import pygame
 class Carte:
-    def __init__(self, nom, couleur, cout_elixir, type_de_carte, pv, degats, reach, cooldown, speed, projectile=None,x=None, y=None):
+    def __init__(self, nom, couleur, cout_elixir, type_de_carte, pv, degats, reach, cooldown, speed, target, projectile=None,x=None, y=None):
         self.nom = nom
         self.couleur = couleur
         self.x = x
@@ -28,12 +28,13 @@ class Carte:
         self.closest_tower_distance = 99999999
         self.closest_tower = None
         self.current_cooldown = time.time()
+        self.target = target
 
     def copy(self, coords):
         if coords:
-            new_carte = Carte(self.nom, self.couleur, self.cout_elixir, self.type_de_carte, self.pv, self.degats, self.reach, self.cooldown, self.speed, self.projectile, x=coords[0], y=coords[1])
+            new_carte = Carte(self.nom, self.couleur, self.cout_elixir, self.type_de_carte, self.pv, self.degats, self.reach, self.cooldown, self.speed, self.projectile, self.target, x=coords[0], y=coords[1])
         else:
-            new_carte = Carte(self.nom, self.couleur, self.cout_elixir, self.type_de_carte, self.pv, self.degats, self.reach, self.cooldown, self.speed, self.projectile)
+            new_carte = Carte(self.nom, self.couleur, self.cout_elixir, self.type_de_carte, self.pv, self.degats, self.reach, self.cooldown, self.speed, self.target, self.projectile)
 
         new_carte.initialize(self.fenetre)
         return new_carte
@@ -49,9 +50,11 @@ class Carte:
     def show_icone(self,x,y):
         self.fenetre.blit(self.icone, (x, y))
 
-    def draw(self,x=None, y=None, transparent=False, tours=None):
+    def draw(self,x=None, y=None, transparent=False, tours=None, cartes_en_jeux=None):
         if not tours and not transparent:
             raise ValueError("oublié de donner les tours")
+        if not cartes_en_jeux and not transparent:
+            raise ValueError("oublié de donner les cartes")
         if x is not None and y is not None:
             self.x = x
             self.y = y
@@ -89,14 +92,14 @@ class Carte:
 
 class Troupe(Carte):
 
-    def __init__(self, nom, couleur, cout_elixir, type_de_carte, pv, degats, reach, cooldown, speed, projectile=None,x=None, y=None):
-        super().__init__(nom, couleur, cout_elixir, type_de_carte, pv, degats, reach, cooldown, speed, projectile, x, y)
+    def __init__(self, nom, couleur, cout_elixir, type_de_carte, pv, degats, reach, cooldown, speed, target, projectile=None,x=None, y=None):
+        super().__init__(nom, couleur, cout_elixir, type_de_carte, pv, degats, reach, cooldown, speed, projectile, target, x, y)
 
     def copy(self, coords):
         if coords:
-            new_carte = Troupe(self.nom, self.couleur, self.cout_elixir, self.type_de_carte, self.pv, self.degats, self.reach, self.cooldown, self.speed, self.projectile, x=coords[0], y=coords[1])
+            new_carte = Troupe(self.nom, self.couleur, self.cout_elixir, self.type_de_carte, self.pv, self.degats, self.reach, self.cooldown, self.speed, self.target, self.projectile, x=coords[0], y=coords[1])
         else:
-            new_carte = Troupe(self.nom, self.couleur, self.cout_elixir, self.type_de_carte, self.pv, self.degats, self.reach, self.cooldown, self.speed, self.projectile)
+            new_carte = Troupe(self.nom, self.couleur, self.cout_elixir, self.type_de_carte, self.pv, self.degats, self.reach, self.cooldown, self.speed, self.target, self.projectile)
 
         new_carte.initialize(self.fenetre)
         return new_carte
@@ -111,6 +114,14 @@ class Troupe(Carte):
                 closest_distance = distance
         self.closest_tower_distance = closest_distance
         self.closest_tower = closest_tour
+
+    def closest_bat(self, cartes_en_jeux, tours):
+        batiment = None
+        for carte in cartes_en_jeux:
+            if carte.type_de_carte == "batiment":
+                batiment = carte
+        if not batiment:
+            return self.closest_tour(tours)
 
     def update_direction(self, tours):
         #update direction based on the closest tour
@@ -161,7 +172,7 @@ class Tour:
         self.y = y
         self.fenetre = fenetre
         self.max_pv = pv
-        self.pv = 2000
+        self.pv = pv
         self.degats = degats
         self.reach = reach
         self.projectile = projectile
