@@ -11,10 +11,10 @@ while True:
     joueur_rouge = joueur.Joueur("rouge", "bot",[])
     #vraie attaque du golem = 312
     cartes_bleu = [
-        WinCondition("golem", "bleu", 2,  5120, 312, 8, 2.51, 4),
-        WinCondition("golem", "bleu", 2,  5120, 312, 8, 2.51, 4),
-        WinCondition("golem", "bleu", 2,  5120, 312, 8, 2.51, 4),
-        Troupe("chevalier", "bleu", 2,  5120, 1500, 50, 2.51, 4),
+        WinCondition("golem", "bleu", 8,  5120, 312, 8, 2.51, 4),
+        WinCondition("golem", "bleu", 8,  5120, 312, 8, 2.51, 4),
+        WinCondition("golem", "bleu", 8,  5120, 312, 8, 2.51, 4),
+        Troupe("chevalier", "bleu", 3,  5120, 1500, 50, 2.51, 4),
     ]
 
     cartes_rouge = [

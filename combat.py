@@ -119,7 +119,7 @@ class Combat:
 
                     #vérifie si l'utilisateur place une carte dans de bonnes conditions
                     if pygame.mouse.get_pos()[1] < 400:
-                        new_enemy_card = carte.WinCondition("golem", "rouge", 2, 5120, 312, 8, 2.51, 1).copy((pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]))
+                        new_enemy_card = carte.WinCondition("golem", "rouge", 8, 5120, 312, 8, 2.51, 1).copy((pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]))
                         new_enemy_card.initialize(fenetre)
                         self.cards_on_the_field.append(new_enemy_card)
                         print("placed card")
